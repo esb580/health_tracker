@@ -53,3 +53,33 @@ def get_weight_history() -> list[tuple[datetime, float]]:
             dt = ts
         result.append((dt, float(row["weight"])))
     return result
+
+
+def get_weight_entries() -> list[tuple[int, datetime, float]]:
+    """Return all weight entries as (id, created_at, weight) ordered by date."""
+    conn = get_connection()
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute(
+        "SELECT id, created_at, weight FROM tbl_weight ORDER BY created_at"
+    ).fetchall()
+    conn.close()
+    result: list[tuple[int, datetime, float]] = []
+    for row in rows:
+        ts = row["created_at"]
+        if isinstance(ts, str):
+            try:
+                dt = datetime.strptime(ts, "%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+        else:
+            dt = ts
+        result.append((int(row["id"]), dt, float(row["weight"])))
+    return result
+
+
+def delete_weight(entry_id: int) -> None:
+    """Delete a weight entry by id."""
+    conn = get_connection()
+    conn.execute("DELETE FROM tbl_weight WHERE id = ?", (entry_id,))
+    conn.commit()
+    conn.close()
