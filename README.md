@@ -49,7 +49,7 @@ health_tracker/
 │   ├── conftest.py      # db_path fixture (temp DB); adds project root to path
 │   └── test_db.py       # Schema + weight/water/distance/profile tests
 └── scripts/
-    └── migrate_tacker_to_tracker.py  # One-off: copy data from typo-named DB
+    └── restore_backup.py  # Restore health_tracker.db from health_tracker_backup.db
 ```
 
 ---
@@ -84,6 +84,15 @@ On first run (or if the DB has no user profile row), the user profile dialog app
 ## Schema and data safety
 
 Applying the schema (via the app’s `ensure_db()` or by running `sqlite3 <db_file> < docs/db_schema.sql`) only **adds** missing tables and indexes. It does not drop or alter existing tables. See `docs/SCHEMA_UPDATES.md` for step-by-step instructions when adding new tables or moving DBs.
+
+### Backup and restore
+
+- **Backup:** Copy `health_tracker.db` to `health_tracker_backup.db` (or any name) in the project root.
+- **Restore:** Close the app, put your backup in the project root as `health_tracker_backup.db`, then run:
+  ```bash
+  python scripts/restore_backup.py
+  ```
+  The script overwrites `health_tracker.db` with the backup and renames the current DB to `health_tracker.db.bak` so you can recover it if needed.
 
 ---
 

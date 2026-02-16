@@ -60,8 +60,14 @@ cover/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+# SQLite – ignore all .db files (local user data; do not commit)
+*.db
+*.db-journal
 health_tracker.db
 health_tracker.db-journal
+# Restore script backup of current DB before overwriting
+health_tracker.db.bak
+health_tracker.db.bak.*
 
 # Flask stuff:
 instance/
