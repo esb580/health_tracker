@@ -1,10 +1,10 @@
-"""Table display widget for weight history."""
+"""Table display widget for water (ounces) history."""
 import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime
 from typing import Callable
 
-from db import get_weight_entries, delete_weight
+from db import get_water_entries, delete_water
 
 
 def delete_selected_row(tree: ttk.Treeview, on_deleted: Callable[[], None] | None = None) -> bool:
@@ -23,15 +23,15 @@ def delete_selected_row(tree: ttk.Treeview, on_deleted: Callable[[], None] | Non
     except ValueError:
         messagebox.showerror("Error", "Could not identify row.")
         return False
-    delete_weight(entry_id)
+    delete_water(entry_id)
     tree.delete(iid)
     if on_deleted:
         on_deleted()
     return True
 
 
-class TableDisplay(tk.Frame):
-    """A frame that shows weight history in an autosized table."""
+class WaterTableDisplay(tk.Frame):
+    """A frame that shows water (ounces) history in an autosized table."""
 
     def __init__(
         self,
@@ -42,12 +42,11 @@ class TableDisplay(tk.Frame):
         super().__init__(parent, **kwargs)
         self.on_row_deleted = on_row_deleted
 
-        # Treeview with scrollbar; use id as iid for deletion
-        self.tree = ttk.Treeview(self, columns=("date", "weight"), show="headings", height=20)
+        self.tree = ttk.Treeview(self, columns=("date", "ounces"), show="headings", height=20)
         self.tree.heading("date", text="Date")
-        self.tree.heading("weight", text="Weight")
+        self.tree.heading("ounces", text="Ounces")
         self.tree.column("date", minwidth=120, stretch=True)
-        self.tree.column("weight", minwidth=80, stretch=True)
+        self.tree.column("ounces", minwidth=80, stretch=True)
 
         scrollbar = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.tree.yview)
         self.tree.configure(yscrollcommand=scrollbar.set)
@@ -61,9 +60,9 @@ class TableDisplay(tk.Frame):
         """Reload data from DB and repopulate the table."""
         for item in self.tree.get_children():
             self.tree.delete(item)
-        for entry_id, created_at, weight in get_weight_entries():
+        for entry_id, created_at, ounces in get_water_entries():
             date_str = created_at.strftime("%Y-%m-%d %H:%M") if isinstance(created_at, datetime) else str(created_at)
-            self.tree.insert("", tk.END, iid=str(entry_id), values=(date_str, f"{weight:.2f}"))
+            self.tree.insert("", tk.END, iid=str(entry_id), values=(date_str, f"{ounces:.2f}"))
 
     def delete_selected_row(self) -> bool:
         """Delete the currently selected row from the table and DB. Returns True if deleted."""
